@@ -85,8 +85,7 @@ namespace EasyAbp.Abp.TagHelperPlus.TagHelpers
                 return new List<SelectListItem>();
             }
 
-            var isNullableBoolean = TagHelper.AspFor.ModelExplorer.ModelType.GenericTypeArguments.Any(t => t.Name == "Boolean");
-            if (isNullableBoolean)
+            if (IsNullableBoolean())
             {
                 return GetSelectItemsFromNullableBoolean(context, output, TagHelper.AspFor.ModelExplorer);
             }
@@ -94,19 +93,24 @@ namespace EasyAbp.Abp.TagHelperPlus.TagHelpers
             return base.GetSelectItems(context, output);
         }
 
+        private bool IsNullableBoolean()
+        {
+            var meta = TagHelper.AspFor.ModelExplorer.Metadata;
+            if (!meta.IsNullableValueType)
+            {
+                return false;
+            }
+
+            return meta.UnderlyingOrModelType.Name == "Boolean";
+        }
+
         protected virtual List<SelectListItem> GetSelectItemsFromNullableBoolean(TagHelperContext context, TagHelperOutput output, ModelExplorer explorer)
         {
-            var selectItems = new List<SelectListItem>();
-            var isNullableType = Nullable.GetUnderlyingType(explorer.ModelType) != null;
-
-            if (isNullableType)
-            {
-                selectItems.Add(new SelectListItem());
-            }
+            var selectItems = new List<SelectListItem>() { new SelectListItem() };
 
             var containerLocalizer = _tagHelperLocalizer.GetLocalizerOrNull(explorer.Container.ModelType.Assembly);
 
-            foreach (var iteam in new List<string> { "TRUE","FALSE"})
+            foreach (var iteam in new List<string> { "True", "False" })
             {
                 var localizedMemberName = AbpInternalLocalizationHelper.LocalizeWithFallback(
                     new[]
@@ -140,7 +144,7 @@ namespace EasyAbp.Abp.TagHelperPlus.TagHelpers
                 return base.SurroundInnerHtmlAndGet(context, output, innerHtml);
             }
 
-            return "<div class=\"form-group\">" +
+            return "<div class=\"form-group mb-3\">" +
                    Environment.NewLine +
                    GetSelect2ConfigurationCode(context, easySelectorAttribute) +
                    Environment.NewLine +

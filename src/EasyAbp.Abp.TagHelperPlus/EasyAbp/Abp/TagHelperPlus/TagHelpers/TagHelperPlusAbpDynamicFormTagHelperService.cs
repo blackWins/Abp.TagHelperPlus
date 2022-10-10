@@ -38,7 +38,7 @@ namespace EasyAbp.Abp.TagHelperPlus.TagHelpers
 
         protected virtual bool IsNullableBoolean(ModelExplorer explorer)
         {
-            return explorer.ModelType.GenericTypeArguments.Any(t => t.Name == "Boolean");
+            return explorer.Metadata.IsNullableValueType && explorer.Metadata.UnderlyingOrModelType.Name == "Boolean";
         }
     }
 }
